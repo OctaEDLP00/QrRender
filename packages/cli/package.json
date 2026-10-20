@@ -1,6 +1,6 @@
 {
 	"name": "@qr-render/cli",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "Professional QR Code generation in your terminal. Generate ANSI-rendered QR codes directly from the command line, powered by @qr-render/core",
 	"keywords": [
 		"cli",
