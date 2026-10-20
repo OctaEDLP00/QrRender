@@ -1,9 +1,27 @@
+import { autoMakeModel } from './autoMake.js'
 import { CanvasDrawing } from './renderer/CanvasDrawing.js'
-import { QRCodeModel } from '@qr-render/core'
-import type { QRCodeOptions } from '@qr-render/core'
+import { QRCodeModel, type QRCodeOptions } from '@qr-render/core'
 
 /**
- * QRCode generator class.
+ * QR code generator class (the default export of `@qr-render/web`).
+ *
+ * It renders into an HTML element using the pixel-perfect Canvas pipeline
+ * ({@link CanvasDrawing}): an integer-snapped grid, whole finder patterns and
+ * no visible seams between modules. Version selection (1–40) is automatic,
+ * shared with every other entry point through {@link autoMakeModel}.
+ *
+ * @example
+ * ```ts
+ * import QRCode from '@qr-render/web'
+ *
+ * const qr = new QRCode('#container', {
+ *   width: 256,
+ *   height: 256,
+ *   text: 'https://example.com',
+ * })
+ * // Refresh the content without recreating the canvas:
+ * qr.makeCode('Hola mundo')
+ * ```
  */
 export default class QRCode {
 	private _htOption: Required<QRCodeOptions>
@@ -11,6 +29,11 @@ export default class QRCode {
 	private _oDrawing: CanvasDrawing
 	private _model: QRCodeModel | null = null
 
+	/**
+	 * @param el Target element (or its element id) where the canvas is mounted.
+	 * @param vOption Options object, or just the text to encode.
+	 * @throws If `el` is a string id that does not match any element.
+	 */
 	constructor(el: HTMLElement | string, vOption: string | Partial<QRCodeOptions>) {
 		this._htOption = {
 			width: 256,
@@ -42,36 +65,17 @@ export default class QRCode {
 	}
 
 	/**
-	 * Generate the QR code with new text.
-	 * @param sText Texto a codificar
+	 * Generates a new QR code with the given text, replacing the previous
+	 * content on the same canvas.
+	 * @param sText Text to encode.
+	 * @throws If the data does not fit version 40 (classic overflow behavior).
 	 * @returns void
 	 */
 	makeCode(sText: string): void {
 		this._htOption.text = sText
-
-		// Auto-selección de versión: con los datos y el nivel elegido cada
-		// versión intenta (make()). Si una versión desborda, QRCodeModel lanza
-		// 'Code length overflow' y probamos la siguiente — el comportamiento
-		// clásico de qrcode.js con typeNumber automático.
-		let model: QRCodeModel | null = null
-		for (let typeNumber = 1; typeNumber <= 40; typeNumber++) {
-			const candidate = new QRCodeModel(typeNumber, this._htOption.correctLevel)
-			candidate.addData(sText)
-			try {
-				candidate.make()
-			} catch {
-				continue
-			}
-			model = candidate
-			break
-		}
-		if (!model) {
-			throw new Error('Data too long for QR version 40 with the selected error correction level')
-		}
-		this._model = model
-
+		this._model = autoMakeModel(sText, this._htOption.correctLevel)
 		this._el.title = sText
-		this._oDrawing.draw(model)
+		this._oDrawing.draw(this._model)
 	}
 
 	/**

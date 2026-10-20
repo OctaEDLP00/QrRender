@@ -6,7 +6,19 @@ import { PATTERN_POSITION_TABLE, QRRSBlock } from './QRRSBlock.js'
 
 /**
  * Data model representing the QR code matrix.
- * Manages grid generation, masks, and error correction.
+ *
+ * Owns the complete ISO/IEC 18004 pipeline: functional patterns (finder,
+ * timing, alignment), format/type info (BCH-coded), 8-bit byte-mode data
+ * assembly with padding, Reed–Solomon interleaved error correction blocks
+ * and masked final placement (best of the 8 standard mask patterns).
+ *
+ * Typical flow:
+ *
+ * ```ts
+ * const model = new QRCodeModel(3, QrErrorCorrectLevel.M)
+ * model.addData('https://example.com')
+ * model.make() // → matrix ready: isDark(row, col) / getModuleCount()
+ * ```
  */
 export class QRCodeModel {
 	private moduleCount: number
@@ -15,9 +27,8 @@ export class QRCodeModel {
 	private dataList: string[] = []
 
 	/**
-	 *
-	 * @param typeNumber
-	 * @param errorCorrectLevel
+	 * @param typeNumber Symbol version (1–40). `moduleCount = version * 4 + 17`.
+	 * @param errorCorrectLevel ISO convention (M=0, L=1, H=2, Q=3).
 	 */
 	constructor(
 		private typeNumber: number,
@@ -27,8 +38,9 @@ export class QRCodeModel {
 	}
 
 	/**
-	 *
-	 * @param data
+	 * Queues a segment for encoding (8-bit byte mode) and invalidates the
+	 * cached codewords. Can be called multiple times to concatenate segments.
+	 * @param data Raw text; encoded per char code (no auto ECI/multibyte).
 	 */
 	addData(data: string): void {
 		this.dataList.push(data)
@@ -36,10 +48,11 @@ export class QRCodeModel {
 	}
 
 	/**
-	 *
-	 * @param row
-	 * @param col
-	 * @returns
+	 * Reads one matrix cell. Call after {@link make}.
+	 * @param row Row index (0 = top).
+	 * @param col Column index (0 = left).
+	 * @returns `true` for a dark module, `false` for a light one.
+	 * @throws If the coordinates fall outside the matrix.
 	 */
 	isDark(row: number, col: number): boolean {
 		if (row < 0 || this.moduleCount <= row || col < 0 || this.moduleCount <= col) {
@@ -49,24 +62,28 @@ export class QRCodeModel {
 	}
 
 	/**
-	 *
-	 * @returns
+	 * @returns Edge length of the square matrix in modules (`typeNumber * 4 + 17`
+	 * after `make()`; `0` before it).
 	 */
 	getModuleCount(): number {
 		return this.moduleCount
 	}
 
 	/**
-	 *
+	 * Finalizes the symbol: score-tests every mask pattern, picks the best and
+	 * constructs the immutable matrix. Data is cached so repeated masking
+	 * trials do not re-encode.
+	 * @throws Propagates Reed–Solomon/overflow errors from data assembly.
 	 */
 	make(): void {
 		this.makeImpl(false, this.getBestMaskPattern())
 	}
 
 	/**
-	 *
-	 * @param test
-	 * @param maskPattern
+	 * Builds the whole matrix under one mask pattern.
+	 * @param test When true, format bits are written unset (mask trials must
+	 * not leak format payload while scoring).
+	 * @param maskPattern Selected mask (0–7).
 	 */
 	private makeImpl(test: boolean, maskPattern: number): void {
 		this.moduleCount = this.typeNumber * 4 + 17
@@ -93,8 +110,9 @@ export class QRCodeModel {
 	}
 
 	/**
-	 *
-	 * @returns
+	 * Builds each of the 8 masked candidates and returns the lowest penalty
+	 * mask (QR spec loss rules, applied loosely).
+	 * @returns Best mask pattern index (0–7).
 	 */
 	private getBestMaskPattern(): number {
 		let minPenalty = 0
@@ -112,9 +130,10 @@ export class QRCodeModel {
 	}
 
 	/**
-	 *
-	 * @param row
-	 * @param col
+	 * Places one finder pattern (7×7 ring, 3×3 eye, surrounding separator) at
+	 * a corner anchor; the ±1 border paints separators clear.
+	 * @param row Anchor row of the 7×7 block (0 or moduleCount-7).
+	 * @param col Anchor column of the 7×7 block.
 	 */
 	private setupPositionProbePattern(row: number, col: number): void {
 		for (let r = -1; r <= 7; r++) {
@@ -135,7 +154,8 @@ export class QRCodeModel {
 	}
 
 	/**
-	 *
+	 * Paints the alternating timing stripes (row 6 and column 6), skipping
+	 * cells already reserved by other functional patterns.
 	 */
 	private setupTimingPattern(): void {
 		for (let r = 8; r < this.moduleCount - 8; r++) {
@@ -149,7 +169,8 @@ export class QRCodeModel {
 	}
 
 	/**
-	 *
+	 * Places the alignment patterns (2 at V1, up to 7 clusters at V40+),
+	 * skipping any cell already claimed by finder/timing patterns.
 	 */
 	private setupPositionAdjustPattern(): void {
 		const pos = QRUtil.getPatternPosition(this.typeNumber)
@@ -173,8 +194,8 @@ export class QRCodeModel {
 	}
 
 	/**
-	 *
-	 * @param test
+	 * BCH-codes format/version info and writes it twice (reserved areas).
+	 * @param test When true, every bit is written as light (mask trials).
 	 */
 	private setupTypeNumber(test: boolean): void {
 		const bits = QRUtil.getBCHTypeNumber(this.typeNumber)
@@ -186,9 +207,10 @@ export class QRCodeModel {
 	}
 
 	/**
-	 *
-	 * @param test
-	 * @param maskPattern
+	 * Writes the masked format info bits (15 bits, 2 placements) plus the
+	 * always-dark "dark module" corner.
+	 * @param test Suppress payload writing (mask trials only).
+	 * @param maskPattern Selected mask (0–7).
 	 */
 	private setupTypeInfo(test: boolean, maskPattern: number): void {
 		const data = (this.errorCorrectLevel << 3) | maskPattern
@@ -218,9 +240,10 @@ export class QRCodeModel {
 	}
 
 	/**
-	 *
-	 * @param data
-	 * @param maskPattern
+	 * Places data codewords in the standard two-column bottom-up serpentine
+	 * (columns 8–6 and 1–0 skipped for format info), XORed per QRMask rules.
+	 * @param data Interleaved codewords (data + ECC).
+	 * @param maskPattern Selected mask (0–7).
 	 */
 	private mapData(data: number[], maskPattern: number): void {
 		let inc = -1
@@ -229,7 +252,7 @@ export class QRCodeModel {
 		let byteIndex = 0
 
 		for (let col = this.moduleCount - 1; col > 0; col -= 2) {
-			if (col === 6) col--
+			if (col === 6) col-- // skip timing column
 
 			while (true) {
 				for (let c = 0; c < 2; c++) {
@@ -238,8 +261,7 @@ export class QRCodeModel {
 						if (byteIndex < data.length) {
 							dark = ((data[byteIndex] >>> bitIndex) & 1) === 1
 						}
-						const mask = QRUtil.getMask(maskPattern, row, col - c)
-						if (mask) {
+						if (QRUtil.getMask(maskPattern, row, col - c)) {
 							dark = !dark
 						}
 						this.modules[row][col - c] = dark
@@ -251,6 +273,7 @@ export class QRCodeModel {
 					}
 				}
 				row += inc
+				// The zigzag turns around when an edge is reached
 				if (row < 0 || this.moduleCount <= row) {
 					row -= inc
 					inc = -inc
@@ -261,11 +284,14 @@ export class QRCodeModel {
 	}
 
 	/**
-	 *
-	 * @param typeNumber
-	 * @param errorCorrectLevel
-	 * @param dataList
-	 * @returns
+	 * Byte-mode data assembly: mode header (0100), count, payload bytes,
+	 * terminator + pad bytes (0xEC/0x11) to fill the block capacity, then the
+	 * Reed–Solomon interleaving applies.
+	 * @param typeNumber Symbol version (1–40).
+	 * @param errorCorrectLevel ISO-convention level.
+	 * @param dataList Data segments queued via {@link addData}.
+	 * @returns Interleaved data + ECC codewords (the raw hex matrix payload).
+	 * @throws Code length overflow when the data exceeds the level/version capacity.
 	 */
 	private createData(
 		typeNumber: number,
@@ -295,7 +321,7 @@ export class QRCodeModel {
 		}
 
 		if (buffer.getLengthInBits() + 4 <= totalDataCount * 8) {
-			buffer.put(0, 4)
+			buffer.put(0, 4) // terminator
 		}
 
 		while (buffer.getLengthInBits() % 8 !== 0) {
@@ -313,10 +339,12 @@ export class QRCodeModel {
 	}
 
 	/**
-	 *
-	 * @param buffer
-	 * @param rsBlocks
-	 * @returns
+	 * Splits the bit buffer into Reed–Solomon blocks, calculates each block's
+	 * ECC, and interleaves data+ECC codewords (spec order). Self-contained:
+	 * no mutable state is shared with the callers.
+	 * @param buffer Fully padded data bit buffer.
+	 * @param rsBlocks Capacity blocks for the version/level.
+	 * @returns Interleaved codeword array (data first, then ECC).
 	 */
 	private createBytes(buffer: QRBitBuffer, rsBlocks: QRRSBlock[]): number[] {
 		let offset = 0
@@ -356,6 +384,7 @@ export class QRCodeModel {
 		const data = new Array(totalCodeCount)
 		let index = 0
 
+		// Interleave data codewords, round-robin across blocks
 		for (let i = 0; i < maxDcCount; i++) {
 			for (let r = 0; r < rsBlocks.length; r++) {
 				if (i < dcdata[r].length) {
@@ -364,6 +393,7 @@ export class QRCodeModel {
 			}
 		}
 
+		// Interleave ECC codewords after the payload
 		for (let i = 0; i < maxEcCount; i++) {
 			for (let r = 0; r < rsBlocks.length; r++) {
 				if (i < ecdata[r].length) {
@@ -376,8 +406,11 @@ export class QRCodeModel {
 	}
 
 	/**
-	 *
-	 * @returns number
+	 * Loss scoring between mask candidates (QR spec loss rules):
+	 * N1 runs of 5+ same color, N2 2×2 blocks of a single color, N4 dark/light
+	 * balance bias "espejo" — used to pick a {@link makeImpl maskPattern} with
+	 * minimal weighted penalty.
+	 * @returns Lower is better; candidates are scored under identical conditions.
 	 */
 	private getPenaltyScore(): number {
 		let score = 0
@@ -399,6 +432,7 @@ export class QRCodeModel {
 			}
 		}
 
+		// Rule 2: 2×2 blocks of a single color
 		for (let row = 0; row < this.moduleCount - 1; row++) {
 			for (let col = 0; col < this.moduleCount - 1; col++) {
 				const count =
@@ -411,6 +445,7 @@ export class QRCodeModel {
 			}
 		}
 
+		// Rule 4: dark/light balance bias
 		let darkCount = 0
 		for (let row = 0; row < this.moduleCount; row++) {
 			for (let col = 0; col < this.moduleCount; col++) {
@@ -428,7 +463,13 @@ export class QRCodeModel {
 // Internal Utils & Constants (Kept here to avoid circular dependencies)
 // ---------------------------------------------------------------------
 
+/**
+ * Internal helpers: BCH format arithmetic, alignment pattern tables, mask
+ * evaluation and RS polynomial factory. Kept as an internal module-scoped
+ * constant — not part of the public API surface.
+ */
 const QRUtil = {
+	/** BCH-wraps 15-bit format info bits with the standard generator (1335) + XOR (21522). */
 	getBCHTypeInfo(data: number): number {
 		let d = data << 10
 		while (QRUtil.getBCHDigit(d) - QRUtil.getBCHDigit(1335) >= 0) {
@@ -437,6 +478,7 @@ const QRUtil = {
 		return ((data << 10) | d) ^ 21522
 	},
 
+	/** BCH-wraps 18 bits of the version indicator for versions 7+ (generator 7973, no mask XOR). */
 	getBCHTypeNumber(data: number): number {
 		let d = data << 12
 		while (QRUtil.getBCHDigit(d) - QRUtil.getBCHDigit(7973) >= 0) {
@@ -445,6 +487,7 @@ const QRUtil = {
 		return (data << 12) | d
 	},
 
+	/** Multitask counting: bit length of a number (1-based position of the highest set bit). */
 	getBCHDigit(data: number): number {
 		let digit = 0
 		while (data !== 0) {
@@ -454,10 +497,12 @@ const QRUtil = {
 		return digit
 	},
 
+	/** Alignment-pattern anchor coordinates for the version (referenced to `PATTERN_POSITION_TABLE`). */
 	getPatternPosition(typeNumber: number): number[] {
 		return PATTERN_POSITION_TABLE[typeNumber - 1]
 	},
 
+	/** Mask function `m(i, j)` per pattern index (ISO/IEC 18004 §8.8.2). */
 	getMask(maskPattern: number, i: number, j: number): boolean {
 		switch (maskPattern) {
 			case 0:
@@ -481,6 +526,7 @@ const QRUtil = {
 		}
 	},
 
+	/** Builds the generator polynomial `∏ (x − α^i)` of degree `errorCorrectLength`. */
 	getErrorCorrectPolynomial(errorCorrectLength: number): QRPolynomial {
 		let a = new QRPolynomial([1], 0)
 		for (let i = 0; i < errorCorrectLength; i++) {
@@ -489,6 +535,7 @@ const QRUtil = {
 		return a
 	},
 
+	/** Character-count indicator width, in bits, for the byte mode at each version. */
 	getLengthInBits(mode: number, type: number): number {
 		if (1 <= type && type < 10) return 8
 		if (type < 27) return 16

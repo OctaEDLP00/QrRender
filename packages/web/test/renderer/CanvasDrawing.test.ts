@@ -33,7 +33,7 @@ describe('CanvasDrawing', () => {
 		model.addData('Vitest')
 		model.make()
 
-		// Verificamos que no lance excepciones al iterar módulos y finders
+		// Verify no exception is thrown while iterating modules and finders
 		expect(() => drawing.draw(model)).not.toThrow()
 	})
 

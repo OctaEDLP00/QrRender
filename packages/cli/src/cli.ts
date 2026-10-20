@@ -74,7 +74,7 @@ program
 
 			const correctLevel = levelMap[selectedLevel]
 
-			// 1. Configuración de opciones CLI
+			// 1. CLI option setup
 			const cliOptions: Required<QRCodeOptionCLI> = {
 				text,
 				quietZone: options.quietZone ?? 4,
@@ -84,20 +84,21 @@ program
 				size: options.size,
 			}
 
-			// 2. Selección automática de versión para evitar Overflows
+			// 2. Automatic version selection to avoid overflows
 			const optimalVersion = getOptimalVersion(text, correctLevel)
 
-			// 3. Generación del modelo real
+			// 3. Generation of the real model
 			const model = new QRCodeModel(optimalVersion, correctLevel)
 			model.addData(text)
 			model.make()
 
-			// 4. Salida a archivo (--output) o renderizado en terminal
+			// 4. File output (--output) or terminal rendering
 			if (options.output) {
 				const { absolutePath, format }: { absolutePath: string; format: OutputFormat } =
 					resolveOutput(options.output)
 
-				// Para archivo se usan colores hex; si el usuario dejó los ANSI por defecto se usan los estándar
+				// For files, hex colors are used; if the user left the ANSI
+				// defaults untouched, the standard colors apply
 				const hexPattern = /^#?[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$/
 				const imageOptions = {
 					scale: options.size,
@@ -114,7 +115,7 @@ program
 				return
 			}
 
-			// 4a. Renderizado en terminal
+			// 4a. Terminal rendering
 			const terminal = new ConsoleDrawing(cliOptions)
 			terminal.draw(model)
 		} catch (error) {

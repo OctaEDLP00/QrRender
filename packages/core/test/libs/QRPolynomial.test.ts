@@ -19,7 +19,7 @@ describe('QRPolynomial', () => {
 	})
 
 	it('should calculate remainder (mod) for error correction', () => {
-		// Caso típico de Reed-Solomon: Polinomio de datos mod Polinomio generador
+		// Typical Reed-Solomon case: data polynomial mod generator polynomial
 		const data = new QRPolynomial([32, 65, 205, 69, 41], 2)
 		const generator = new QRPolynomial([1, 3, 2], 0)
 

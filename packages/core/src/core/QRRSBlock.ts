@@ -1,11 +1,12 @@
 /**
- *
+ * Capacity descriptor of a single Reed–Solomon block for a version/level:
+ * how many data codeword bytes (dataCount) it carries, and how many total
+ * bytes (totalCount = dataCount + eccCount) it carries once ECC is included.
  */
 export class QRRSBlock {
 	/**
-	 *
-	 * @param totalCount
-	 * @param dataCount
+	 * @param totalCount Total codeword bytes of the block (data + ECC).
+	 * @param dataCount Data codeword bytes of the block.
 	 */
 	constructor(
 		public totalCount: number,
@@ -13,10 +14,13 @@ export class QRRSBlock {
 	) {}
 
 	/**
-	 *
-	 * @param typeNumber
-	 * @param errorCorrectLevel
-	 * @returns
+	 * Resolves the interleaved RS block layout for a version/level and
+	 * expands it into one instance per block (a version can combine blocks of
+	 * different shapes, e.g. V5-L = 1 block per every (134, 100) group).
+	 * @param typeNumber Symbol version (1–40).
+	 * @param errorCorrectLevel ISO convention (M=0, L=1, H=2, Q=3).
+	 * @returns One descriptor instance per physical RS block.
+	 * @throws When the version/level pair has no table entry.
 	 */
 	static getRSBlocks(typeNumber: number, errorCorrectLevel: number): QRRSBlock[] {
 		const rsBlock = QRRSBlock.getRsBlockTable(typeNumber, errorCorrectLevel)
@@ -40,10 +44,11 @@ export class QRRSBlock {
 	}
 
 	/**
-	 *
-	 * @param typeNumber
-	 * @param errorCorrectLevel
-	 * @returns
+	 * Raw lookup of the flat triplets `[count, totalCount, dataCount]` for the
+	 * version/level (rows grouped per version, order L, M, Q, H).
+	 * @param typeNumber Symbol version (1–40).
+	 * @param errorCorrectLevel ISO convention (M=0, L=1, H=2, Q=3).
+	 * @returns The flat triple array, or `undefined` if the pair does not exist.
 	 */
 	static getRsBlockTable(typeNumber: number, errorCorrectLevel: number): number[] | undefined {
 		switch (errorCorrectLevel) {
@@ -159,7 +164,7 @@ export const RS_BLOCK_TABLE = [
 	[4, 69, 43, 1, 70, 44],
 	[6, 43, 19, 2, 44, 20],
 	[6, 43, 15, 2, 44, 16],
-	// ... Para un soporte completo hasta V40, esta tabla continua, pero V1-10 cubre el 99% de usos web.
+	// ... For full V40 support this table keeps going; V1-10 covers 99% of web uses.
 	// Version 11
 	[4, 101, 81],
 	[1, 80, 50, 4, 81, 51],

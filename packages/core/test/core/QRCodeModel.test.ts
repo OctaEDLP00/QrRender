@@ -59,7 +59,7 @@ describe('QRCodeModel Edge Cases', () => {
 		const size = model.getModuleCount()
 		let hasDarkPixel = false
 
-		// Buscamos al menos un píxel oscuro en la matriz generada
+		// Look for at least one dark pixel in the generated matrix
 		for (let r = 0; r < size; r++) {
 			for (let c = 0; c < size; c++) {
 				if (model.isDark(r, c)) {

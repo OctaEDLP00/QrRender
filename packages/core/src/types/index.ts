@@ -10,12 +10,12 @@ export interface QRCodeOptions {
 	 */
 	text?: string
 	/**
-	 * Width in pixels
-	 * @default ''
+	 * Canvas width in pixels (the square edge for square outputs).
+	 * @default 256
 	 */
 	width?: number
 	/**
-	 * Pixel height
+	 * Canvas height in pixels.
 	 * @default 256
 	 */
 	height?: number
@@ -92,9 +92,18 @@ export const QrErrorCorrectLevel = {
 export type QrErrorCorrectLevel = (typeof QrErrorCorrectLevel)[keyof typeof QrErrorCorrectLevel]
 
 /**
- *
+ * Contract for all renderers: turn a {@link QRCodeModel} matrix into pixels
+ * (Canvas), characters (terminal) or any other drawing surface.
  */
 export interface DrawingProvider {
+	/**
+	 * Paints the full symbol, replacing any previous content.
+	 * @param model Already-generated model (`make()` applied).
+	 */
 	draw(model: QRCodeModel): void
+
+	/**
+	 * Empties the drawing surface (keeps it mounted for reuse).
+	 */
 	clear(): void
 }

@@ -38,6 +38,27 @@
 			"import": "./dist/index.mjs",
 			"default": "./dist/index.mjs"
 		},
+		"./qrSvg": {
+			"types": "./dist/qrSvg.d.mts",
+			"import": "./dist/qrSvg.mjs",
+			"default": "./dist/qrSvg.mjs"
+		},
+		"./preact": {
+			"types": "./dist/preact.d.mts",
+			"import": "./dist/preact.mjs",
+			"default": "./dist/preact.mjs"
+		},
+		"./svelte": {
+			"types": "./dist/QRCode.svelte.d.ts",
+			"import": "./dist/QRCode.svelte",
+			"default": "./dist/QRCode.svelte"
+		},
+		"./astro": "./dist/QrCode.astro",
+		"./element": {
+			"types": "./dist/element.d.mts",
+			"import": "./dist/element.mjs",
+			"default": "./dist/element.mjs"
+		},
 		"./package.json": "./package.json"
 	},
 	"scripts": {
@@ -54,5 +75,17 @@
 	},
 	"dependencies": {
 		"@qr-render/core": "workspace:*"
+	},
+	"peerDependencies": {
+		"preact": "^10.13.0",
+		"svelte": "^5.0.0"
+	},
+	"peerDependenciesMeta": {
+		"preact": {
+			"optional": true
+		},
+		"svelte": {
+			"optional": true
+		}
 	}
 }

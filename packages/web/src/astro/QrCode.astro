@@ -1,0 +1,46 @@
+---
+/**
+ * Astro wrapper (`@qr-render/web/astro`). Server-rendered static SVG: the QR
+ * matrix is generated at render time with the same shared pipeline
+ * (versions 1–40, `autoMakeModel`) and emitted as crisp inline <rect>
+ * markup — zero client JS, ready for Astro's islands/HTML output.
+ *
+ * Based on the vanilla docs playground export.
+ * Props: value (req) size level fgColor bgColor margin quietZone class.
+ */
+import { qrSvg } from '@qr-render/web'
+
+interface Props {
+	/** Text to encode. */
+	value: string
+	/** Square edge in pixels. @default 256 */
+	size?: number
+	/** Error correction level. @default 'H' */
+	level?: 'L' | 'M' | 'Q' | 'H'
+	/** Dark module color. @default '#111827' */
+	fgColor?: string
+	/** Light module color. @default '#f8fafc' */
+	bgColor?: string
+	/** Physical margin in pixels. @default 10 */
+	margin?: number
+	/** Quiet-zone modules per side. @default 4 */
+	quietZone?: number
+	/** Extra classes for the svg. */
+	class?: string
+}
+
+const {
+	value,
+	size = 256,
+	level = 'H',
+	fgColor = '#111827',
+	bgColor = '#f8fafc',
+	margin = 10,
+	quietZone = 4,
+	class: className,
+} = Astro.props
+
+const svg = qrSvg(value, { size, level, colorDark: fgColor, colorLight: bgColor, margin, quietZone, class: className })
+---
+
+<Fragment set:html={svg} />

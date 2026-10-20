@@ -1,23 +1,45 @@
 import { defineConfig } from 'tsdown'
 
 export default defineConfig([
-	// ESM: @qr-render/core queda como dependencia externa (tree-shakable y sin duplicación)
+	// ESM: entrys de la librería + wrappers de frameworks; @qr-render/core y
+	// preact quedan como dependencias externas (tree-shakable y sin duplicación).
 	{
-		entry: ['./src/index.ts'],
+		entry: {
+			index: './src/index.ts',
+			qrSvg: './src/qrSvg.ts',
+			element: './src/element.ts',
+			preact: './src/preact/index.tsx',
+		},
 		format: ['esm'],
 		dts: true,
 		clean: true,
 		minify: true,
 		sourcemap: true,
+		inputOptions: {
+			transform: {
+				// Runtime automático de Preact: emite `preact/jsx-runtime`.
+				jsx: { runtime: 'automatic', importSource: 'preact' },
+			},
+		},
+		platform: 'neutral',
 		tsconfig: './tsconfig.json',
 		deps: {
-			neverBundle: ['@qr-render/core'],
+			neverBundle: ['@qr-render/core', 'preact', 'preact/hooks'],
 		},
 		outExtensions() {
 			return {
 				js: '.mjs',
 			}
 		},
+		// Shipping de fuentes para los wrappers que compila el consumidor:
+		// Svelte 5 (.svelte) y Astro (.astro). El .svelte.d.ts vuela como types
+		// del subpath ./svelte.
+		copy: [
+			'./src/svelte/QRCode.svelte',
+			'./src/svelte/QRCode.svelte.d.ts',
+			'./src/astro/QrCode.astro',
+		],
+		outDir: 'dist',
 	},
 	// IIFE: bundle autocontenido para <script> directo (incluye el core)
 	{
