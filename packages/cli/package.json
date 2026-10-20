@@ -45,6 +45,6 @@
 	},
 	"dependencies": {
 		"@qr-render/core": "workspace:*",
-		"commander": "14.0.2"
+		"commander": "15.0.0"
 	}
 }
