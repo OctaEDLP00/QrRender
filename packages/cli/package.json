@@ -1,0 +1,50 @@
+{
+	"name": "@qr-render/cli",
+	"version": "0.1.0",
+	"description": "Professional QR Code generation in your terminal. Generate ANSI-rendered QR codes directly from the command line, powered by @qr-render/core",
+	"keywords": [
+		"cli",
+		"commander",
+		"qrcode",
+		"terminal",
+		"typescript"
+	],
+	"homepage": "https://github.com/OctaEDLP00/QrRender#readme",
+	"bugs": {
+		"url": "https://github.com/OctaEDLP00/QrRender/issues"
+	},
+	"license": "MIT",
+	"author": "OctaEDLP00",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/OctaEDLP00/QrRender.git",
+		"directory": "packages/cli"
+	},
+	"bin": {
+		"qr": "dist/cli.js"
+	},
+	"files": [
+		"dist",
+		"README.md",
+		"LICENSE",
+		"package.json"
+	],
+	"type": "module",
+	"scripts": {
+		"build": "tsup",
+		"lint": "oxlint src/**/*.ts",
+		"lint:fix": "oxlint src/**/*.ts --fix",
+		"fmt": "oxfmt",
+		"fmt:check": "oxfmt --check",
+		"prepublishOnly": "pnpm run build && pnpm run test:run && pnpm run lint",
+		"test": "vitest",
+		"test:coverage": "vitest run --coverage",
+		"test:run": "vitest run",
+		"test:ui": "vitest --ui",
+		"type-check": "tsc --noEmit"
+	},
+	"dependencies": {
+		"@qr-render/core": "workspace:*",
+		"commander": "14.0.2"
+	}
+}

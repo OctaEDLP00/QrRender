@@ -1,0 +1,41 @@
+{
+	"$schema": "./node_modules/oxfmt/configuration_schema.json",
+	"ignorePatterns": ["dist", "coverage", "node_modules"],
+	"arrowParens": "avoid",
+	"bracketSameLine": true,
+	"bracketSpacing": true,
+	"embeddedLanguageFormatting": "auto",
+	"endOfLine": "lf",
+	"experimentalSortPackageJson": true,
+	"experimentalTailwindcss": {
+		"attributes": ["class", "className", "class:list"],
+		"functions": ["clsx", "cn", "cva", "tw"],
+		"preserveDuplicates": null,
+		"preserveWhitespace": null,
+		"stylesheet": ""
+	},
+	"htmlWhitespaceSensitivity": "css",
+	"insertFinalNewline": true,
+	"jsxSingleQuote": true,
+	"objectWrap": "preserve",
+	"printWidth": 100,
+	"proseWrap": "always",
+	"semi": false,
+	"quoteProps": "as-needed",
+	"singleQuote": true,
+	"singleAttributePerLine": true,
+	"tabWidth": 2,
+	"trailingComma": "es5",
+	"useTabs": true,
+	"experimentalSortImports": {
+		"customGroups": [],
+		"groups": [],
+		"ignoreCase": true,
+		"internalPattern": [],
+		"newlinesBetween": true,
+		"partitionByComment": true,
+		"order": "asc",
+		"partitionByNewline": false,
+		"sortSideEffects": false
+	}
+}

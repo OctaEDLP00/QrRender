@@ -1,0 +1,58 @@
+name: Release → npm
+
+# Publicación a través de los commits: al fusionar a `main`, cada paquete se
+# publica sólo si su `version` cambió (flujo: PR con `chore(release): bump a
+# X.Y.Z` en packages/*/package.json → merge a main → publish).
+# Requiere el secret NODE_AUTH_TOKEN (token de npm con permiso publish);
+# sin el secret el job se salta la publicación con un notice.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Publicar paquetes cambiados
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          registry-url: https://registry.npmjs.org
+
+      - name: Instalar dependencias
+        run: pnpm install --frozen-lockfile
+
+      - name: Build de los paquetes
+        run: pnpm build
+
+      - name: ¿Token de npm disponible?
+        id: token
+        run: |
+          if [ -n "${NODE_AUTH_TOKEN:-}" ]; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::El secret NODE_AUTH_TOKEN no está configurado — se omite la publicación."
+          fi
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
+
+      - name: Publicar @qr-render/core · web · cli (solo versiones nuevas)
+        if: steps.token.outputs.available == 'true'
+        run: node .github/scripts/publish-changed.mjs
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}

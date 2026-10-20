@@ -1,0 +1,450 @@
+/* ===== @qr-render docs · vanilla css ===== */
+:root {
+	--bg: #0b0f14;
+	--bg-soft: #111823;
+	--panel: #131c28;
+	--border: #243247;
+	--text: #e6edf3;
+	--text-dim: #93a4b8;
+	--accent: #4ec9b0;
+	--accent-2: #7aa2f7;
+	--radius: 14px;
+	color-scheme: dark;
+}
+
+* {
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+}
+
+html {
+	scroll-behavior: smooth;
+}
+
+body {
+	font-family: ui-sans-serif, system-ui, 'Segoe UI', Roboto, sans-serif;
+	background:
+		radial-gradient(1200px 500px at 80% -10%, rgba(78, 201, 176, 0.08), transparent),
+		radial-gradient(900px 400px at 10% 0%, rgba(122, 162, 247, 0.07), transparent), var(--bg);
+	color: var(--text);
+	line-height: 1.6;
+}
+
+.container {
+	width: min(1080px, 92%);
+	margin-inline: auto;
+}
+
+code {
+	font-family: ui-monospace, 'Cascadia Code', 'JetBrains Mono', monospace;
+	background: var(--bg-soft);
+	border: 1px solid var(--border);
+	border-radius: 6px;
+	padding: 0.15em 0.4em;
+	font-size: 0.9em;
+	color: var(--accent);
+}
+
+h1,
+h2,
+h3 {
+	line-height: 1.25;
+	letter-spacing: -0.02em;
+}
+
+/* ===== Header ===== */
+.site-header {
+	position: sticky;
+	top: 0;
+	z-index: 10;
+	backdrop-filter: blur(10px);
+	background: rgba(11, 15, 20, 0.75);
+	border-bottom: 1px solid var(--border);
+}
+
+.site-header .container {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 0.7rem 0;
+}
+
+.logo {
+	font-weight: 800;
+	font-size: 1.05rem;
+	letter-spacing: 0.02em;
+}
+
+.site-header nav a {
+	color: var(--text-dim);
+	text-decoration: none;
+	margin-left: 1.4rem;
+	font-size: 0.95rem;
+}
+
+.site-header nav a:hover {
+	color: var(--accent);
+}
+
+/* Icono de GitHub: lo alineamos junto al nav con margen simétrico y
+   estado de hover como el resto de los enlaces. */
+.gh-link {
+	display: inline-flex;
+	align-items: center;
+	color: var(--text-dim);
+	margin-left: 1.4rem;
+	transition:
+		color 0.15s ease,
+		transform 0.15s ease;
+}
+
+.gh-link:hover {
+	color: var(--accent);
+	transform: translateY(-1px);
+}
+
+.gh-link svg {
+	display: block;
+}
+
+/* ===== Hero ===== */
+.hero {
+	padding: 4.5rem 0 2.5rem;
+	text-align: center;
+}
+
+.hero h1 {
+	font-size: clamp(1.8rem, 4vw, 3rem);
+	max-width: 640px;
+	margin-inline: auto;
+}
+
+.hero h1 em {
+	color: var(--accent);
+	font-style: normal;
+}
+
+.hero p {
+	max-width: 620px;
+	margin: 1rem auto 0;
+	color: var(--text-dim);
+}
+
+.hero-install {
+	display: block;
+	margin-top: 1.6rem;
+}
+
+/* Tabs dentro del hero: centradas y compactas */
+qr-tabs {
+	/* El reset `* { margin: 0 }` del documento exterior gana a las reglas
+	   `:host` del shadow DOM, así que el margen del host vive aquí. */
+	display: block;
+	margin-block: 0 1.75rem;
+}
+
+.hero-install qr-tabs {
+	max-width: 520px;
+	margin: 0 auto;
+}
+
+.hero-install .code-card pre {
+	text-align: left;
+}
+
+/* ===== Sections ===== */
+.section {
+	padding: 3rem 0;
+}
+
+.kicker {
+	display: block;
+	font-size: 0.8rem;
+	font-weight: 700;
+	letter-spacing: 0.14em;
+	text-transform: uppercase;
+	color: var(--accent-2);
+	margin-bottom: 0.4rem;
+}
+
+.section-lead {
+	color: var(--text-dim);
+	margin-top: 0.6rem;
+}
+
+/* ===== Playground ===== */
+.playground {
+	display: grid;
+	grid-template-columns: minmax(320px, 440px) 1fr;
+	gap: 1.4rem;
+	margin-top: 1.8rem;
+	align-items: start;
+}
+
+.panel {
+	background: var(--panel);
+	border: 1px solid var(--border);
+	border-radius: var(--radius);
+	padding: 1.4rem;
+}
+
+label {
+	display: grid;
+	gap: 0.35rem;
+	font-size: 0.85rem;
+	color: var(--text-dim);
+	margin-bottom: 0.9rem;
+}
+
+/* El reset/labels con display propio no deben pisar el atributo hidden. */
+[hidden] {
+	display: none !important;
+}
+
+textarea,
+select,
+input[type='text'],
+input[type='password'] {
+	background: var(--bg-soft);
+	border: 1px solid var(--border);
+	border-radius: 8px;
+	color: var(--text);
+	padding: 0.55rem 0.7rem;
+	font-family: inherit;
+	width: 100%;
+	resize: vertical;
+}
+
+input::placeholder {
+	color: var(--text-dim);
+	opacity: 0.7;
+}
+
+/* Password con botón de previsualización incrustado. */
+.password-wrap {
+	position: relative;
+	display: block;
+}
+
+.password-wrap input {
+	padding-right: 3rem;
+}
+
+.password-toggle {
+	position: absolute;
+	top: 50%;
+	right: 0.4rem;
+	transform: translateY(-50%);
+	background: transparent;
+	border: 0;
+	border-radius: 6px;
+	padding: 0.25rem 0.5rem;
+	font-size: 1rem;
+	line-height: 1;
+	color: var(--text-dim);
+	cursor: pointer;
+}
+
+.password-toggle:hover {
+	background: var(--bg-soft);
+	color: var(--text);
+}
+
+.password-toggle[aria-pressed='true'] {
+	color: var(--accent);
+}
+
+textarea:focus,
+select:focus,
+input:focus {
+	outline: 2px solid var(--accent);
+	outline-offset: 1px;
+}
+
+.grid-2 {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 0 1rem;
+}
+
+input[type='range'] {
+	accent-color: var(--accent);
+}
+
+input[type='color'] {
+	width: 100%;
+	height: 2.2rem;
+	border: 1px solid var(--border);
+	border-radius: 8px;
+	background: var(--bg-soft);
+	padding: 2px;
+}
+
+output {
+	font-size: 0.8rem;
+	color: var(--accent);
+}
+
+.actions {
+	display: flex;
+	gap: 0.7rem;
+	margin-top: 0.4rem;
+}
+
+button {
+	background: var(--accent);
+	color: #04110d;
+	border: none;
+	border-radius: 10px;
+	padding: 0.65rem 1.1rem;
+	font-weight: 700;
+	cursor: pointer;
+	font-size: 0.95rem;
+}
+
+button:hover {
+	filter: brightness(1.1);
+}
+
+button.secondary {
+	background: transparent;
+	border: 1px solid var(--border);
+	color: var(--text-dim);
+}
+
+.hint {
+	min-height: 1.4em;
+	font-size: 0.82rem;
+	color: var(--text-dim);
+	margin-top: 0.6rem;
+}
+
+.qr-frame {
+	display: grid;
+	place-items: center;
+	min-height: 340px;
+	background: repeating-conic-gradient(#0f1724 0% 25%, #131c28 0% 50%) 50% / 28px 28px;
+	border-radius: var(--radius);
+	padding: 1.5rem;
+}
+
+/* ===== Code cards ===== */
+.code-card {
+	background: var(--bg-soft);
+	border: 1px solid var(--border);
+	border-radius: var(--radius);
+	padding: 1.2rem 1.4rem;
+	overflow-x: auto;
+}
+
+.code-card pre {
+	font-family: ui-monospace, 'Cascadia Code', monospace;
+	font-size: 0.88rem;
+	line-height: 1.7;
+	color: #c8d7ea;
+}
+
+.code-card code {
+	background: none;
+	border: none;
+	padding: 0;
+	color: inherit;
+}
+
+/* Bloques resaltados por Shiki (docs generados) */
+pre.shiki {
+	background: var(--bg-soft) !important;
+	border: 1px solid var(--border);
+	border-radius: var(--radius);
+	padding: 1.2rem 1.4rem;
+	overflow-x: auto;
+	font-family: ui-monospace, 'Cascadia Code', monospace;
+	font-size: 0.88rem;
+	line-height: 1.7;
+	margin: 0;
+}
+
+pre.shiki code {
+	background: none;
+	border: none;
+	padding: 0;
+	color: inherit;
+	display: block;
+}
+
+/* ===== API table ===== */
+.api-table {
+	width: 100%;
+	border-collapse: collapse;
+	margin: 1.6rem 0 2.4rem;
+	font-size: 0.9rem;
+}
+
+.api-table th,
+.api-table td {
+	text-align: left;
+	padding: 0.6rem 0.8rem;
+	border-bottom: 1px solid var(--border);
+}
+
+.api-table th {
+	color: var(--accent-2);
+	font-size: 0.8rem;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+}
+
+.api-table td:first-child code {
+	color: var(--text);
+}
+
+/* ===== Package cards ===== */
+.packages-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+	gap: 1.2rem;
+	margin-top: 1.6rem;
+}
+
+.card {
+	background: var(--panel);
+	border: 1px solid var(--border);
+	border-radius: var(--radius);
+	padding: 1.4rem;
+}
+
+.card h3 {
+	margin-bottom: 0.6rem;
+}
+
+.card p {
+	color: var(--text-dim);
+	font-size: 0.92rem;
+	margin-bottom: 0.9rem;
+}
+
+/* ===== Footer ===== */
+.site-footer {
+	border-top: 1px solid var(--border);
+	padding: 1.6rem 0 2.2rem;
+	margin-top: 3rem;
+	color: var(--text-dim);
+	font-size: 0.88rem;
+	text-align: center;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 860px) {
+	.playground {
+		grid-template-columns: 1fr;
+	}
+
+	.grid-2 {
+		grid-template-columns: 1fr;
+	}
+
+	.site-header nav a {
+		margin-left: 0.9rem;
+	}
+}

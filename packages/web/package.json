@@ -1,0 +1,58 @@
+{
+	"name": "@qr-render/web",
+	"version": "0.1.0",
+	"description": "The modern, zero-dependency successor to qrcodejs. Built in TypeScript for the web, focusing on performance and type-safety for Canvas rendering",
+	"keywords": [
+		"canvas",
+		"ems",
+		"qrcode",
+		"tree-shaking",
+		"typescript",
+		"web",
+		"zero-dependency"
+	],
+	"homepage": "https://github.com/OctaEDLP00/QrRender#readme",
+	"bugs": {
+		"url": "https://github.com/OctaEDLP00/QrRender/issues"
+	},
+	"license": "MIT",
+	"author": "OctaEDLP00",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/OctaEDLP00/QrRender.git",
+		"directory": "packages/web"
+	},
+	"files": [
+		"dist",
+		"README.md",
+		"LICENSE",
+		"package.json",
+		"tsconfig.json"
+	],
+	"type": "module",
+	"browser": "./dist/index.browser.js",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.mjs",
+			"default": "./dist/index.mjs"
+		},
+		"./package.json": "./package.json"
+	},
+	"scripts": {
+		"build": "tsup",
+		"lint": "oxlint src/**/*.ts",
+		"lint:fix": "oxlint src/**/*.ts --fix",
+		"fmt": "oxfmt",
+		"fmt:check": "oxfmt --check",
+		"test": "vitest",
+		"test:coverage": "vitest run --coverage",
+		"test:run": "vitest run",
+		"test:ui": "vitest --ui",
+		"type-check": "tsc --noEmit"
+	},
+	"dependencies": {
+		"@qr-render/core": "workspace:*"
+	}
+}

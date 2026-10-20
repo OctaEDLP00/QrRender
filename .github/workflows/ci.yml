@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Solo un CI por rama/PR: cancela el anterior en favor del nuevo.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    name: build · test · lint · type-check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Instalar dependencias
+        run: pnpm install --frozen-lockfile
+
+      - name: Build (core → web → cli)
+        run: pnpm build
+
+      - name: Tests
+        run: pnpm test:run
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Formato
+        run: pnpm fmt:check
+
+      - name: Type-check (paquetes + docs)
+        run: |
+          pnpm type-check
+          pnpm docs:type-check
+
+      - name: Build de la docs
+        run: pnpm docs:build

@@ -1,0 +1,20 @@
+{
+	"compilerOptions": {
+		"target": "ESNext",
+		"module": "ESNext",
+		"moduleResolution": "bundler",
+		"outDir": "./dist",
+		"strict": true,
+		"esModuleInterop": true,
+		"skipLibCheck": true,
+		"forceConsistentCasingInFileNames": true,
+		"allowSyntheticDefaultImports": true,
+		"useDefineForClassFields": true,
+		"noImplicitAny": true,
+		"resolveJsonModule": true,
+		"declaration": true,
+		"rootDir": "."
+	},
+	"includes": ["src/**/*"],
+	"exclude": ["node_modules", "dist", "test"]
+}

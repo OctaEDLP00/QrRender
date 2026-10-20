@@ -1,0 +1,63 @@
+name: Docs → GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Solo un deploy a la vez.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    name: Build del sitio
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Instalar dependencias
+        run: pnpm install --frozen-lockfile
+
+      # El sitio de docs carga la librería real (build IIFE de @qr-render/web).
+      - name: Build de los paquetes
+        run: pnpm build
+
+      - name: Build de la docs (Shiki + componentes)
+        run: pnpm docs:build
+
+      - name: Configurar Pages
+        uses: actions/configure-pages@v5
+        with:
+          # Crea/habilita el sitio de Pages automáticamente en el primer push.
+          enablement: true
+
+      - name: Subir artifact del sitio
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+
+  deploy:
+    name: Deploy a Pages
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4

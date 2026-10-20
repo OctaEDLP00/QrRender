@@ -1,0 +1,39 @@
+name: Lint de commits (commitlint)
+
+# Conventional Commits: valida los mensajes de cada PR contra
+# commitlint.config.js (los commits directos ya pasan por el hook husky).
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  commits:
+    name: Mensajes convencionales
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      # Config local (commitlint.config.js + @commitlint/config-conventional).
+      - name: Instalar dependencias
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint de los commits del PR
+        run: |
+          BASE="origin/${{ github.event.pull_request.base.ref }}"
+          git fetch origin "${{ github.event.pull_request.base.ref }}"
+          pnpm exec commitlint --config commitlint.config.js \
+            --from "${BASE}" --to "${{ github.event.pull_request.head.sha }}"

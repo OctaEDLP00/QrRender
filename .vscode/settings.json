@@ -1,0 +1,14 @@
+{
+  "editor.formatOnSave": true,
+  "files.eol": "\n",
+  "json.schemas": [
+    {
+      "url": "https://cdn.jsdelivr.net/npm/tsup/schema.json",
+      "fileMatch": ["tsup.config.json"]
+    },
+    {
+      "url": "./node_modules/oxlint/configuration_schema.json",
+      "fileMatch": [".oxlintrc.json"]
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+	"$schema": "./node_modules/oxlint/configuration_schema.json",
+	"ignorePatterns": ["dist", "coverage", "node_modules"],
+	"categories": {
+		"correctness": "allow",
+		"nursery": "allow",
+		"pedantic": "allow",
+		"perf": "allow",
+		"restriction": "allow",
+		"style": "allow",
+		"suspicious": "allow"
+	},
+	"env": {
+		"builtin": true,
+		"node": true,
+		"es2016": true,
+		"browser": true,
+		"shared-node-browser": true
+	},
+	"globals": {},
+	"plugins": ["typescript", "vitest", "jsdoc", "oxc"],
+	"rules": {
+		"accessor-pairs": "warn"
+	},
+	"settings": {
+		"jsdoc": {
+			"ignorePrivate": false,
+			"ignoreInternal": false,
+			"ignoreReplacesDocs": true,
+			"overrideReplacesDocs": true,
+			"augmentsExtendsReplacesDocs": false,
+			"implementsReplacesDocs": false,
+			"exemptDestructuredRootsFromChecks": false,
+			"tagNamePreference": {}
+		},
+		"vitest": {
+			"typecheck": false
+		}
+	}
+}
