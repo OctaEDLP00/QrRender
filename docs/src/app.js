@@ -39,14 +39,20 @@ import QRCode from '../../packages/web/src/index.ts'
 
 	/**
 	 * String de credenciales WiFi: cada campo `K:valor` termina en `;` y el
-	 * string completo cierra con `;;` — p. ej. WIFI:T:WPA;S:MiRed;P:clave;;
-	 * Con `nopass` (red abierta) se omite el campo P.
+	 * string completo cierra con `;;` — p. ej. WIFI:S:MiRed;T:WPA;P:clave;;
+	 * Con `nopass` (red abierta) se omiten los campos T y P.
+	 * El SSID va primero: es el orden que esperan la mayoría de los
+	 * escáneres (qifi / ZXing / Android); con T primero algunos apps
+	 * rechazan el QR como "no contiene información".
 	 * @returns {string}
 	 */
 	const wifiString = () => {
-		const fields = [`T:${wifi.security}`, `S:${escapeWifi(wifi.ssid)}`]
-		if (wifi.security !== 'nopass' && wifi.password) {
-			fields.push(`P:${escapeWifi(wifi.password)}`)
+		const fields = [`S:${escapeWifi(wifi.ssid)}`]
+		if (wifi.security !== 'nopass') {
+			fields.push(`T:${wifi.security}`)
+			if (wifi.password) {
+				fields.push(`P:${escapeWifi(wifi.password)}`)
+			}
 		}
 		return 'WIFI:' + fields.map((f) => f + ';').join('') + ';'
 	}
