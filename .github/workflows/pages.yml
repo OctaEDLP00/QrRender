@@ -32,12 +32,13 @@ jobs:
       - name: Instalar dependencias
         run: pnpm install --frozen-lockfile
 
-      # El sitio de docs carga la librería real (build IIFE de @qr-render/web).
-      - name: Build de los paquetes
-        run: pnpm build
-
-      - name: Build de la docs (Shiki + componentes)
+      # El sitio de docs (Vite) importa la fuente TS de @qr-render/web:
+      # no hace falta build previo de los paquetes.
+      - name: Build de la docs (Vite + Shiki)
         run: pnpm docs:build
+        env:
+          # Pages sirve el repo bajo /QrRender/.
+          VITE_BASE: /QrRender/
 
       - name: Configurar Pages
         uses: actions/configure-pages@v6
@@ -48,7 +49,7 @@ jobs:
       - name: Subir artifact del sitio
         uses: actions/upload-pages-artifact@v5
         with:
-          path: docs
+          path: docs/dist
 
   deploy:
     name: Deploy a Pages

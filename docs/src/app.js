@@ -1,18 +1,12 @@
 /* ===== @qr-render docs · vanilla js ===== */
-/* Depende de window.QRCode expuesto por packages/web/dist/index.browser.js (build IIFE). */
+/* Importa el paquete real desde su fuente TS: en dev Vite transpila al vuelo
+   (HMR incluido) y en el build rolldown lo bundlea como módulo ESM. */
+import QRCode from '../../packages/web/src/index.ts'
+
 ;(() => {
 	'use strict'
 
 	const status = document.getElementById('status')
-
-	if (typeof window.QRCode === 'undefined') {
-		if (status) {
-			status.textContent =
-				'⚠ No se encontró docs/js/qr.browser.js — ejecuta `pnpm docs:build` (copia el bundle IIFE de @qr-render/web).'
-			status.style.color = '#ff7b72'
-		}
-		return
-	}
 
 	const container = document.getElementById('qr-container')
 
@@ -66,7 +60,7 @@
 	/** (Re)instancia la librería con el estado actual y el contenido de la pestaña activa. */
 	const init = () => {
 		try {
-			qrInstance = new window.QRCode(container, { ...state, text: qrContent() })
+			qrInstance = new QRCode(container, { ...state, text: qrContent() })
 			status.textContent = ''
 			return true
 		} catch (error) {
