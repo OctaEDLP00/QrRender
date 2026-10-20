@@ -1,6 +1,6 @@
 {
 	"name": "@qr-render/core",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "The modern, zero-dependency successor to qrcodejs. Platform-agnostic QR code generation engine (matrix, masking and Reed-Solomon error correction) for @qr-render/web and @qr-render/cli",
 	"keywords": [
 		"core",
