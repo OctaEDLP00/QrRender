@@ -8,8 +8,8 @@ describe('escapeWiFiValue', () => {
 	})
 
 	it('should leave plain alphanumerics untouched', () => {
-		expect(escapeWiFiValue('Edlp050524$')).toBe('Edlp050524$')
-		expect(escapeWiFiValue('UNO57TOLOSA')).toBe('UNO57TOLOSA')
+		expect(escapeWiFiValue('Sup3r$ecret')).toBe('Sup3r$ecret')
+		expect(escapeWiFiValue('MyNetwork')).toBe('MyNetwork')
 	})
 })
 

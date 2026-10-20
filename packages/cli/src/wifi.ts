@@ -3,8 +3,8 @@
  * adopted by Android 10+ and iOS 11+).
  *
  * @example
- * 	buildWiFiString({ ssid: 'UNO57TOLOSA', password: 'Edlp050524$' })
- * 	// → 'WIFI:S:UNO57TOLOSA;T:WPA;P:Edlp050524$;;'
+ * 	buildWiFiString({ ssid: 'MyNetwork', password: 'Sup3r$ecret' })
+ * 	// → 'WIFI:S:MyNetwork;T:WPA;P:Sup3r$ecret;;'
  */
 
 /**

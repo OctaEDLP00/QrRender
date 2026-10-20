@@ -54,7 +54,7 @@ describe('rasterizeSvgRgb', () => {
 
 describe('encodePngFromRgb', () => {
 	it('should produce a decodable PNG from the SVG rasterization (SVG→PNG equivalence)', () => {
-		const text = 'WIFI:S:UNO57TOLOSA;T:WPA;P:Edlp050524$;;'
+		const text = 'WIFI:S:MyNetwork;T:WPA;P:Sup3r$ecret;;'
 		const model = makeModel(text)
 		const svg = encodeQrSvg(model, { scale: 4, quietZone: 4 })
 		const { size, rgb } = rasterizeSvgRgb(svg)

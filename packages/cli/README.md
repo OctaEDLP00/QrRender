@@ -74,7 +74,7 @@ They accept, and only then make sense, these options (the CLI errors if they are
 ```bash
 # Whatever the terminal has: kitty/iTerm2/sixel show truecolor; else half-blocks
 qr "https://example.com" --ink-picture -w 40 -h 40
-qr wifi --ssid UNO57TOLOSA -p 'Edlp050524$' --ink -w 30 -m 2
+qr wifi --ssid MyNetwork -p 'Sup3r$ecret' --ink -w 30 -m 2
 ```
 
 ### `qr wifi`: credentials QR without hand-building strings
@@ -94,7 +94,7 @@ itself still decodes.
 | `--hidden`              | Adds `H:true` for non-broadcast SSIDs                           | `false` |
 
 ```bash
-qr wifi --ssid UNO57TOLOSA -p 'Edlp050524$'
+qr wifi --ssid MyNetwork -p 'Sup3r$ecret'
 qr wifi --ssid 'My;Quoted:Ssid' -p 'p@ss,word' --ink-picture -w 32
 qr wifi --ssid GuestNetwork --type nopass -o guest.png -s 8
 ```

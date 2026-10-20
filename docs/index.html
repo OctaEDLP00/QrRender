@@ -10,11 +10,8 @@
 			name="description"
 			content="Documentación y playground vanilla de la suite @qr-render: core, web y cli." />
 		<link
-			rel="stylesheet"
-			href="./css/styles.css" />
-		<link
 			rel="icon"
-			href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect width='16' height='16' fill='%23fff'/><rect x='1' y='1' width='4' height='4' fill='%23111'/><rect x='11' y='1' width='4' height='4' fill='%23111'/><rect x='1' y='11' width='4' height='4' fill='%23111'/><rect x='7' y='7' width='2' height='2' fill='%23111'/></svg>" />
+			href="/favicon.svg" />
 	</head>
 	<body>
 		<header class="site-header">
@@ -23,6 +20,7 @@
 				<nav>
 					<a href="#playground">Playground</a>
 					<a href="#api">API</a>
+					<a href="#componentes">Componentes</a>
 					<a href="#paquetes">Paquetes</a>
 					<a href="#cli">CLI</a>
 				</nav>
@@ -385,6 +383,151 @@ model.isDark(row, col)  // consume la matriz tu propio renderer</code></pre>
 				</table>
 			</section>
 
+			<!-- ============ COMPONENTES ============ -->
+			<section
+				id="componentes"
+				class="section container">
+				<h2><span class="kicker">Componentes</span> Un QR, cuatro sabores</h2>
+				<p class="section-lead">
+					<code>@qr-render/web</code> también se publica como componentes listos para tu
+					framework: la misma pipeline Canvas (SVG estático en Astro) y un vocabulario de
+					props compartido. Instalá <code>@qr-render/web</code> una sola vez y traé el
+					wrapper por subpath.
+				</p>
+
+				<qr-tabs sync-key="componentes">
+					<qr-tab-item label="Web component">
+						<div class="code-card">
+							<pre><code class="language-html">&lt;script type="module"&gt;
+	// Auto-registra &lt;qr-code&gt; de forma idempotente,
+	// usable desde HTML plano, Vue, React, Astro…
+	import '@qr-render/web/element'
+&lt;/script&gt;
+
+&lt;qr-code
+	value="https://example.com"
+	size="256"
+	level="H"
+	fg-color="#111827"
+	bg-color="#f8fafc"
+	roundness="0.3"&gt;
+&lt;/qr-code&gt;</code></pre>
+						</div>
+						<p class="section-note">
+							¿Otro nombre de tag?
+							<code>import &#123; defineCustomElement &#125; from '@qr-render/web/element'</code> y
+							llamalo con el tag que quieras
+							(<code>defineCustomElement('mini-qr')</code> → <code>&lt;mini-qr value="…"&gt;</code>).
+						</p>
+					</qr-tab-item>
+					<qr-tab-item label="Preact">
+						<div class="code-card">
+							<pre><code class="language-tsx">import { render } from 'preact'
+import { QrCode } from '@qr-render/web/preact'
+
+render(
+	&lt;QrCode
+		value="https://example.com"
+		size={256}
+		level="H"
+		fgColor="#111827"
+		roundness={0.3}
+	/&gt;,
+	document.getElementById('app')
+)</code></pre>
+						</div>
+					</qr-tab-item>
+					<qr-tab-item label="Svelte 5">
+						<div class="code-card">
+							<pre><code class="language-svelte">&lt;script&gt;
+	import QRCode from '@qr-render/web/svelte'
+&lt;/script&gt;
+
+&lt;QRCode
+	value="https://example.com"
+	size={256}
+	level="H"
+	fgColor="#111827" /&gt;</code></pre>
+						</div>
+						<p class="section-note">
+							Redibuja reactivamente cada vez que cambia una prop (runas de Svelte 5); el
+							archivo <code>.svelte</code> se compila en tu proyecto.
+						</p>
+					</qr-tab-item>
+					<qr-tab-item label="Astro">
+						<div class="code-card">
+							<pre><code class="language-astro">---
+// SSR: SVG vectorial estático, cero JS en el cliente
+import QrCode from '@qr-render/web/astro'
+---
+
+&lt;QrCode
+	value="https://example.com"
+	size={256}
+	level="H"
+	fgColor="#111827"
+	bgColor="#f8fafc" /&gt;</code></pre>
+						</div>
+					</qr-tab-item>
+				</qr-tabs>
+
+				<h3>Props compartidas</h3>
+				<table class="api-table">
+					<thead>
+						<tr>
+							<th>Prop</th>
+							<th>Web component</th>
+							<th>Default</th>
+							<th>Descripción</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td><code>value</code></td>
+							<td><code>value</code></td>
+							<td>""</td>
+							<td>Texto o URL a codificar (obligatoria)</td>
+						</tr>
+						<tr>
+							<td><code>size</code></td>
+							<td><code>size</code></td>
+							<td>256</td>
+							<td>Arista del cuadrado en px (vectores en Astro)</td>
+						</tr>
+						<tr>
+							<td><code>level</code></td>
+							<td><code>level</code></td>
+							<td>'H'</td>
+							<td>Corrección de errores: L · M · Q · H</td>
+						</tr>
+						<tr>
+							<td><code>fgColor</code> / <code>bgColor</code></td>
+							<td><code>fg-color</code> / <code>bg-color</code></td>
+							<td>#000 / #fff</td>
+							<td>Colores de módulos oscuros y claros</td>
+						</tr>
+						<tr>
+							<td><code>margin</code></td>
+							<td><code>margin</code></td>
+							<td>10</td>
+							<td>Margen físico en px</td>
+						</tr>
+						<tr>
+							<td><code>quietZone</code></td>
+							<td><code>quiet-zone</code></td>
+							<td>4</td>
+							<td>Módulos de quiet zone</td>
+						</tr>
+						<tr>
+							<td><code>roundness</code> · <code>pixelSize</code>*</td>
+							<td><code>roundness</code> · <code>pixel-size</code>*</td>
+							<td>0 · 1</td>
+							<td>Solo render Canvas: redondeo (0..1) y escala del módulo</td>
+						</tr>
+					</tbody>
+				</table>
+			</section>
+
 			<!-- ============ PAQUETES ============ -->
 			<section
 				id="paquetes"
@@ -402,8 +545,9 @@ model.isDark(row, col)  // consume la matriz tu propio renderer</code></pre>
 					<article class="card">
 						<h3>🖥️ @qr-render/web</h3>
 						<p>
-							Renderer HTML5 Canvas para el navegador. Build ESM (core externo) + IIFE autocontenida
-							para <code>&lt;script&gt;</code> directo.
+							Renderer HTML5 Canvas para el navegador. Build ESM (core externo) + IIFE
+							autocontenida para <code>&lt;script&gt;</code> directo. Wrappers por subpath para
+							Preact, Svelte 5, Astro y un web component <code>&lt;qr-code&gt;</code>.
 						</p>
 						<code>packages/web</code>
 					</article>
@@ -434,10 +578,35 @@ qr "https://example.com"
 qr "Payment ABC123XYZ" -s 3 -l H -q 5</code></pre>
 						</div>
 					</qr-tab-item>
+					<qr-tab-item label="WiFi (qr wifi)">
+						<div class="code-card">
+							<pre><code class="language-bash"># Compone el string WIFI: por vos (SSID primero, escape ZXing
+# de \ ; , : ") — un separador sin escapar trunca el campo y el
+# móvil reporta "contraseña incorrecta" aunque el QR decodifique.
+qr wifi --ssid MyNetwork -p 'Sup3r$ecret'
+
+# Caracteres especiales sin dolor + SSID oculta
+qr wifi --ssid 'Mi;Red:Especial' -p 'pa:ss,"word' --hidden
+
+# Red abierta y export en un paso
+qr wifi --ssid FreeWifi --type nopass -o guest.png -s 8</code></pre>
+						</div>
+					</qr-tab-item>
+					<qr-tab-item label="Imagen en terminal (--ink)">
+						<div class="code-card">
+							<pre><code class="language-bash"># Imagen real en la terminal: kitty/iTerm2/sixel con
+# auto-detección y fallback a semi-bloques/ASCII.
+# Sin --ink* el render es ANSI.
+qr "https://example.com" --ink-picture -w 40 -h 40   # bytes PNG
+qr "https://example.com" --ink -m 2                  # SVG rasterizado al vuelo
+
+# -w/-h/-m solo valen con --ink/--ink-picture (error si no);
+# --help ya no tiene alias corto: -h es la altura</code></pre>
+						</div>
+					</qr-tab-item>
 					<qr-tab-item label="Exportar PNG">
 						<div class="code-card">
 							<pre><code class="language-bash"># La extensión decide el formato (.png por defecto). Cero dependencias.
-qr "WIFI:S:MyNetwork;P:password;;" --output ./wifi.png -s 6
 qr "qr-render" --output ./qr.png -s 6 --dark "#101828" --light "#ffffff"</code></pre>
 						</div>
 					</qr-tab-item>
@@ -461,15 +630,11 @@ qr "Etiqueta práctica" --output ./etiqueta.svg -s 4 -q 2</code></pre>
 			</div>
 		</footer>
 
-		<!-- Build IIFE autocontenida (incluye el core). Se expone window.QRCode -->
-		<!-- Vite: módulos ESM. Los web components se registran por import, y
-		     app.js carga @qr-render/web desde su fuente TS (rolldown/oxc los
-		     bundlea también en el build de producción). -->
+		<!-- Entrada única estilo create-vite: src/main.ts importa el CSS, los web
+		     components y app.js (que carga @qr-render/web desde su fuente TS;
+		     rolldown/oxc los bundlea también en el build de producción). -->
 		<script
-			src="/src/components/index.ts"
-			type="module"></script>
-		<script
-			src="/src/app.js"
+			src="/src/main.ts"
 			type="module"></script>
 	</body>
 </html>
