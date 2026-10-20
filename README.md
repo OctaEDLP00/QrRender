@@ -93,7 +93,10 @@ pnpm build && node packages/cli/dist/cli.js "Hola mundo"
 - CI en `.github/workflows/ci.yml` (lint, fmt, test, build, type-check por paquete + docs).
 - **Release con Changesets**: `pnpm changeset` genera el bump → `.github/workflows/release.yml`
   (`changesets/action`) acumula los changesets en un PR "chore: version packages" y, al fusionarlo,
-  publica `@qr-render/*` en npm (requiere el secret `NPM_TOKEN`).
+  publica `@qr-render/*` en npm (requiere el secret `NPM_TOKEN`). `changeset publish` crea las tags
+  `@qr-render/<paquete>@<versión>` y el propio workflow abre un **GitHub Release** por tag
+  (`.github/scripts/create-github-releases.mjs`), con notas sacadas del `CHANGELOG.md` de cada
+  paquete; idempotente y ejecutable también a mano con `workflow_dispatch`.
 - Divulgación de commits: Conventional Commits con `husky` (hooks `pre-commit` y `commit-msg`) +
   `commitlint`; los PRs se validan además con `.github/workflows/commitlint.yml`, y Dependabot
   renueva dependencias de npm y GitHub Actions semanalmente.
