@@ -1,6 +1,6 @@
 # QrRender
 
-English · [Español](README.es.md)
+[English](README.md) · Español
 
 Monorepo multi-paquete (pnpm workspaces) para la suite `@qr-render`:
 
