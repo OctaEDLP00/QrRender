@@ -8,7 +8,7 @@
 	if (typeof window.QRCode === 'undefined') {
 		if (status) {
 			status.textContent =
-				'⚠ No se encontró packages/web/dist/index.browser.js — ejecuta `pnpm build` primero.'
+				'⚠ No se encontró docs/js/qr.browser.js — ejecuta `pnpm docs:build` (copia el bundle IIFE de @qr-render/web).'
 			status.style.color = '#ff7b72'
 		}
 		return

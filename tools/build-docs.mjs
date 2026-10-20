@@ -4,7 +4,7 @@
  * (build-time, sin CDN ni JS en runtime) y escribe docs/index.html.
  */
 import { build } from 'esbuild'
-import { readFile, writeFile } from 'node:fs/promises'
+import { readFile, writeFile, copyFile } from 'node:fs/promises'
 import { statSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { codeToHtml } from 'shiki'
@@ -37,7 +37,14 @@ const main = async () => {
 	})
 	console.log('build-docs: componentes web transpilados → docs/js/components.js')
 
-	// 2) Resaltado Shiki de los bloques de código
+	// 2) Bundle IIFE de @qr-render/web → docs/js/qr.browser.js (copia local para
+	// que GitHub Pages, que sólo sirve docs/, encuentre la librería del playground).
+	const BUNDLE = resolve(import.meta.dirname, '../packages/web/dist/index.browser.js')
+	const BUNDLE_OUT = resolve(import.meta.dirname, '../docs/js/qr.browser.js')
+	await copyFile(BUNDLE, BUNDLE_OUT)
+	console.log('build-docs: bundle @qr-render/web copiado → docs/js/qr.browser.js')
+
+	// 3) Resaltado Shiki de los bloques de código
 	const source = await readFile(SRC, 'utf8')
 
 	const blockRe = /<pre><code class="language-([\w-]+)">([\s\S]*?)<\/code><\/pre>/g

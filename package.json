@@ -21,8 +21,7 @@
 		"docs": "node tools/build-docs.mjs && node tools/serve-docs.mjs",
 		"docs:build": "node tools/build-docs.mjs",
 		"docs:type-check": "tsc -p docs/tsconfig.json",
-		"commitlint": "commitlint",
-		"prepare": "husky",
+    "commitlint": "commitlint",
 		"prepare": "husky"
 	},
 	"devDependencies": {

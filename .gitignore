@@ -140,3 +140,6 @@ dist
 
 # Playwright MCP (probes locales)
 .playwright-mcp/
+
+# Bundle IIFE copiado al docs por tools/build-docs.mjs (generado)
+docs/js/qr.browser.js
