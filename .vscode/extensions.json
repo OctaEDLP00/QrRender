@@ -2,6 +2,8 @@
   "recommendations": [
     "oxc.oxc-vscode",
     "vitest.vitest-explorer",
-    "editorconfig.editorconfig"
+    "editorconfig.editorconfig",
+    "astro-build.astro-vscode",
+    "svelte.svelte-vscode"
   ]
 }

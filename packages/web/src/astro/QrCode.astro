@@ -8,9 +8,13 @@
  * Based on the vanilla docs playground export.
  * Props: value (req) size level fgColor bgColor margin quietZone class.
  */
-import { qrSvg } from '@qr-render/web'
+import { qrSvg } from "@qr-render/web/qrSvg";
 
-interface Props {
+/**
+ * Props inlined to keep the .astro self-contained (only runtime dependency:
+ * the `@qr-render/web/qrSvg` subpath). Mirrors src/astro/types.ts.
+ */
+export interface Props {
 	/** Text to encode. */
 	value: string
 	/** Square edge in pixels. @default 256 */
@@ -32,15 +36,23 @@ interface Props {
 const {
 	value,
 	size = 256,
-	level = 'H',
-	fgColor = '#111827',
-	bgColor = '#f8fafc',
+	level = "H",
+	fgColor = "#111827",
+	bgColor = "#f8fafc",
 	margin = 10,
 	quietZone = 4,
 	class: className,
-} = Astro.props
+} = Astro.props;
 
-const svg = qrSvg(value, { size, level, colorDark: fgColor, colorLight: bgColor, margin, quietZone, class: className })
+const svg = qrSvg(value, {
+	size,
+	level,
+	colorDark: fgColor,
+	colorLight: bgColor,
+	margin,
+	quietZone,
+	class: className,
+});
 ---
 
 <Fragment set:html={svg} />

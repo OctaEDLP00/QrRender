@@ -53,7 +53,11 @@
 			"import": "./dist/QRCode.svelte",
 			"default": "./dist/QRCode.svelte"
 		},
-		"./astro": "./dist/QrCode.astro",
+		"./astro": {
+			"import": "./dist/astro.mjs",
+			"types": "./dist/astro.d.mts",
+			"default": "./dist/astro.mjs"
+		},
 		"./element": {
 			"types": "./dist/element.d.mts",
 			"import": "./dist/element.mjs",
@@ -77,6 +81,7 @@
 		"@qr-render/core": "workspace:*"
 	},
 	"peerDependencies": {
+		"astro": "^7.0.0",
 		"preact": "^10.13.0",
 		"svelte": "^5.0.0"
 	},
@@ -85,6 +90,9 @@
 			"optional": true
 		},
 		"svelte": {
+			"optional": true
+		},
+		"astro": {
 			"optional": true
 		}
 	}

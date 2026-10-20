@@ -57,4 +57,11 @@
 	})
 </script>
 
-<div bind:this={container} title={value} style="width: {size}px; height: {size}px" {...rest}></div>
+<div bind:this={container} title={value} style="--size: {size}" {...rest}></div>
+
+<style>
+	div	{
+		width: var(--size);
+		height: var(--size);
+	}
+</style>

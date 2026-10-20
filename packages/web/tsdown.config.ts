@@ -9,6 +9,7 @@ export default defineConfig([
 			qrSvg: './src/qrSvg.ts',
 			element: './src/element.ts',
 			preact: './src/preact/index.tsx',
+			astro: './src/astro/Astro.ts',
 		},
 		format: ['esm'],
 		dts: true,
@@ -24,7 +25,14 @@ export default defineConfig([
 		platform: 'neutral',
 		tsconfig: './tsconfig.json',
 		deps: {
-			neverBundle: ['@qr-render/core', 'preact', 'preact/hooks'],
+			neverBundle: [
+				'@qr-render/core',
+				'preact',
+				'preact/hooks',
+				// Los `.astro` los compila el proyecto consumidor (plugin astro de Vite);
+				// quedan como import runtime hacia la copia en dist.
+				/\.astro$/,
+			],
 		},
 		outExtensions() {
 			return {
@@ -37,7 +45,9 @@ export default defineConfig([
 		copy: [
 			'./src/svelte/QRCode.svelte',
 			'./src/svelte/QRCode.svelte.d.ts',
-			'./src/astro/QrCode.astro',
+			// Sin flatten para conservar astro/QrCode.astro: el import runtime
+			// rebasado de astro.mjs (`./astro/QrCode.astro`) resuelve así.
+			{ from: './src/astro/QrCode.astro', flatten: false },
 		],
 		outDir: 'dist',
 	},

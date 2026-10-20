@@ -9,7 +9,7 @@ export interface QrSvgOptions {
 	/** Edge of the square in CSS pixels. @default 256 */
 	size?: number
 	/** Error correction level. @default 'H' */
-	level?: keyof QrErrorCorrectLevel
+	level?: keyof typeof QrErrorCorrectLevel
 	/** Dark module color. @default '#111827' */
 	colorDark?: string
 	/** Light module color. @default '#f8fafc' */
