@@ -1,6 +1,6 @@
 {
 	"name": "@qr-render/web",
-	"version": "0.2.1",
+	"version": "0.2.2",
 	"description": "The modern, zero-dependency successor to qrcodejs. Built in TypeScript for the web, focusing on performance and type-safety for Canvas rendering",
 	"keywords": [
 		"canvas",
