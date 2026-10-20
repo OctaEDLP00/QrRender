@@ -30,7 +30,10 @@ jobs:
     name: Version + publish con changesets
     runs-on: ubuntu-latest
     steps:
+      # Historia completa: el script de releases necesita ver las tags.
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
 
       # Lee la versión de pnpm del campo packageManager (pnpm@12.10.1).
       - uses: pnpm/action-setup@v6

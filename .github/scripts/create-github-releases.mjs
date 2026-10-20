@@ -7,7 +7,10 @@
  *
  * Las notas se extraen del CHANGELOG.md del paquete (sección `## <version>`
  * generada por changesets, hasta el próximo `## `); si no está el archivo o
- * la versión, cae a `(sin changelog)`.
+ * la versión, cae a un fallback informativo.
+ *
+ * Escanea tags locales Y remotas (`git ls-remote`) para funcionar en un
+ * checkout shallow, y fetea del remoto la tag que aporte una release nueva.
  *
  * Uso: node create-github-releases.mjs
  * Requiere: GH_TOKEN (o gh autenticado), `gh` en el PATH.
@@ -20,6 +23,15 @@ const TAG_RE = /^@qr-render\/([a-z-]+)@([0-9]+\.[0-9]+\.[0-9]+(?:-[\w.]+)?)$/
 
 const exec = (cmd, opts = {}) =>
 	execSync(cmd, { stdio: 'pipe', encoding: 'utf8', ...opts })
+
+const tagExists = tag => {
+	try {
+		return exec(`git rev-parse -q --verify "refs/tags/${tag}"`).trim().length > 0
+	} catch {
+		// `git rev-parse --verify` sale con 1 si el tag no existe.
+		return false
+	}
+}
 
 /**
  * Extrae de packages/<pkg>/CHANGELOG.md la sección `## <version>` hasta el
@@ -56,28 +68,50 @@ const releaseExists = tag => {
 	}
 }
 
-// Todas las tags del repo con el patrón `@qr-render/<pkg>@<ver>`.
-const tags = exec('git tag -l --sort=creatordate')
-	.split('\n')
-	.map(line => line.trim())
-	.filter(Boolean)
-	.map(tag => {
+// Recolecta tags locales y remotos: en un checkout shallow el corredor puede
+// no tener las tags en local, y `changeset publish` puede haberlas creado en
+// el remoto en un run anterior. Fuentes combinadas, sin duplicados.
+const tags = new Map()
+const remember = tag => {
+	if (!tags.has(tag)) {
 		const match = TAG_RE.exec(tag)
-		return match ? { tag, pkg: match[1], version: match[2] } : null
-	})
-	.filter(Boolean)
+		if (match) tags.set(tag, { tag, pkg: match[1], version: match[2] })
+	}
+}
+for (const tag of exec('git tag -l').split('\n').map(l => l.trim())) remember(tag)
+try {
+	for (const line of exec('git ls-remote --tags origin').split('\n')) {
+		const at = line.indexOf('refs/tags/')
+		if (at === -1 || line.includes('^{}')) continue // deref de tags anotadas
+		remember(line.slice(at + 'refs/tags/'.length).trim())
+	}
+} catch {
+	// Sin acceso al remoto (p. ej. un repo local sin origin): vale con lo local.
+}
 
-if (tags.length === 0) {
+if (tags.size === 0) {
 	console.log('sin tags con patrón @qr-render/<pkg>@<ver> — nada que publicar')
 	process.exit(0)
 }
 
 const notesFile = join(process.cwd(), '.release-notes.tmp.md')
 
-for (const { tag, pkg, version } of tags) {
+for (const { tag, pkg, version } of tags.values()) {
 	if (releaseExists(tag)) {
 		console.log(`skip ${tag} (release ya existente)`)
 		continue
+	}
+
+	// La release referencia una tag que ya existe: si sólo vive en el remoto
+	// (checkout shallow), la traigo antes de `gh release create --verify-tag`.
+	if (!tagExists(tag)) {
+		try {
+			exec(`git fetch --force origin tag ${tag} --quiet`)
+			console.log(`tag ${tag} feteada del remoto`)
+		} catch {
+			console.warn(`skip ${tag}: la tag no es local ni feteable`)
+			continue
+		}
 	}
 
 	writeFileSync(notesFile, `${changelogBody(pkg, version)}\n`)
