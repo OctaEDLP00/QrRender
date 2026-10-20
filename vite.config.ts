@@ -11,6 +11,15 @@ export default defineConfig({
 	// Sin la variable (desarrollo local) la base es '/'.
 	base: process.env.VITE_BASE || '/',
 
+	// El playground importe la fuente de @qr-render/web, que a su vez importa
+	// @qr-render/core. Alias a la fuente del core (igual que los vitest.config
+	// (de cada paquete): resuelve sin depender del shape del install de CI.
+	resolve: {
+		alias: {
+			'@qr-render/core': new URL('./packages/core/src/index.ts', import.meta.url).pathname,
+		},
+	},
+
 	plugins: [shikiHighlight()],
 
 	// Resuelto relativo al root (docs/) → docs/dist.
