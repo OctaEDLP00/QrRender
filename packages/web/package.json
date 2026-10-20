@@ -54,9 +54,8 @@
 			"default": "./dist/QRCode.svelte"
 		},
 		"./astro": {
-			"import": "./dist/astro.mjs",
 			"types": "./dist/astro.d.mts",
-			"default": "./dist/astro.mjs"
+			"default": "./dist/astro/QrCode.astro"
 		},
 		"./element": {
 			"types": "./dist/element.d.mts",
