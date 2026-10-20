@@ -40,7 +40,7 @@ jobs:
         run: pnpm docs:build
 
       - name: Configurar Pages
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@v6
         with:
           # Crea/habilita el sitio de Pages automáticamente en el primer push.
           enablement: true
