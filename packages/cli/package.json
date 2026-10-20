@@ -31,7 +31,7 @@
 	],
 	"type": "module",
 	"scripts": {
-		"build": "tsup",
+		"build": "tsdown",
 		"lint": "oxlint src/**/*.ts",
 		"lint:fix": "oxlint src/**/*.ts --fix",
 		"fmt": "oxfmt",

@@ -1,4 +1,4 @@
-import { defineConfig } from 'tsup'
+import { defineConfig } from 'tsdown'
 
 export default defineConfig([
 	// ESM: @qr-render/core queda como dependencia externa (tree-shakable y sin duplicación)
@@ -6,14 +6,14 @@ export default defineConfig([
 		entry: ['./src/index.ts'],
 		format: ['esm'],
 		dts: true,
-		bundle: true,
 		clean: true,
 		minify: true,
 		sourcemap: true,
-		splitting: false,
 		tsconfig: './tsconfig.json',
-		external: ['@qr-render/core'],
-		outExtension() {
+		deps: {
+			neverBundle: ['@qr-render/core'],
+		},
+		outExtensions() {
 			return {
 				js: '.mjs',
 			}
@@ -24,20 +24,26 @@ export default defineConfig([
 		entry: ['./src/index.ts'],
 		format: ['iife'],
 		globalName: 'QRCode',
-		bundle: true,
+		platform: 'browser',
 		clean: false,
 		minify: true,
 		sourcemap: true,
-		splitting: false,
 		tsconfig: './tsconfig.json',
-		noExternal: ['@qr-render/core'],
-		outExtension() {
+		deps: {
+			alwaysBundle: ['@qr-render/core'],
+		},
+		outExtensions() {
 			return {
 				js: '.browser.js',
 			}
 		},
-		// tsup envuelve el default export en un namespace ESM; el global `<script>`
-		// debe exponer directamente la clase QRCode.
+		// Fija el nombre exacto sin el prefijo `.iife` que tsdown inserta por
+		// defecto: la docs y el bundle servido esperan `index.browser.js`.
+		outputOptions: {
+			entryFileNames: '[name].browser.js',
+		},
+		// El IIFE envuelve el default export en un namespace ESM; el global
+		// `<script>` debe exponer directamente la clase QRCode.
 		footer: {
 			js: "if (typeof window !== 'undefined' && typeof QRCode === 'object' && QRCode.default) { QRCode = QRCode.default; window.QRCode = QRCode; }",
 		},

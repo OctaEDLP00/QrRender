@@ -31,17 +31,17 @@
 		"tsconfig.json"
 	],
 	"type": "module",
-	"types": "./dist/index.d.ts",
+	"types": "./dist/index.d.mts",
 	"exports": {
 		".": {
-			"types": "./dist/index.d.ts",
+			"types": "./dist/index.d.mts",
 			"import": "./dist/index.mjs",
 			"default": "./dist/index.mjs"
 		},
 		"./package.json": "./package.json"
 	},
 	"scripts": {
-		"build": "tsup",
+		"build": "tsdown",
 		"lint": "oxlint src/**/*.ts",
 		"lint:fix": "oxlint src/**/*.ts --fix",
 		"fmt": "oxfmt",

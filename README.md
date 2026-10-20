@@ -83,11 +83,12 @@ pnpm build && node packages/cli/dist/cli.js "Hola mundo"
 
 ## Tooling
 
-- Builds con `tsup`, tests con `vitest`, lint con `oxlint`, formato con `oxfmt`.
+- Builds con `tsdown` (Rolldown; dts vía `rolldown-plugin-dts` con TypeScript 7 nativo), tests con
+  `vitest`, lint con `oxlint`, formato con `oxfmt`.
 - **Config única en la raíz**: `.oxlintrc.json` y `.oxfmtrc.json` viven en la raíz del monorepo;
   oxlint/oxfmt los descubren hacia arriba desde cada paquete, así que los reglas de lint/formato son
   idénticas para los tres.
-- **DevDependencies hoisted a la raíz**: oxfmt/oxlint/vitest/tsup/typescript no se repiten por
+- **DevDependencies hoisted a la raíz**: oxfmt/oxlint/vitest/tsdown/typescript no se repiten por
   paquete; cada paquete declara solo sus dependencias runtime (`commander`, `@qr-render/core`). pnpm
   expone el `node_modules/.bin` de la raíz a los scripts de los workspaces.
 - CI en `.github/workflows/ci.yml` (lint, fmt, test, build, type-check por paquete + docs).
