@@ -140,24 +140,14 @@ export const renderRgbBuffer = (
 }
 
 /**
- * Encodes a QRCodeModel into a PNG (AA level, RGB truecolor) file.
- * Zero dependencies: only uses node:zlib for compression.
- * @param {QRCodeModel} model - Generated model (make() must have been called).
- * @param {QrImageOptions} options - Scale, colors and quiet zone.
+ * Wraps already computed RGB scanlines (filter-prefixed per row) into a
+ * complete PNG file (truecolor RGB, deflate).
+ * @param {number} size - Square image side in pixels.
+ * @param {Buffer} rgb - Scanlines from `renderRgbBuffer()` or `rasterizeSvgRgb()`.
+ * @returns {Buffer} PNG file bytes.
  */
-export const encodeQrPng = (model: QRCodeModel, options: QrImageOptions = {}): Buffer => {
-	const scale = Math.max(1, Math.floor(options.scale ?? 1))
-	const quietZone = Math.max(0, Math.floor(options.quietZone ?? 4))
-	const rgb = renderRgbBuffer(model, {
-		scale,
-		quietZone,
-		colorDark: options.colorDark ?? '#000000',
-		colorLight: options.colorLight ?? '#ffffff',
-	})
+export const encodePngFromRgb = (size: number, rgb: Buffer): Buffer => {
 	const compressed = deflateSync(rgb, { level: 9 })
-
-	const moduleCount = model.getModuleCount()
-	const size = (moduleCount + quietZone * 2) * scale
 
 	const ihdr = Buffer.alloc(13)
 	ihdr.writeUInt32BE(size, 0)
@@ -174,4 +164,25 @@ export const encodeQrPng = (model: QRCodeModel, options: QrImageOptions = {}): B
 		createChunk('IDAT', compressed),
 		createChunk('IEND', Buffer.alloc(0)),
 	])
+}
+
+/**
+ * Encodes a QRCodeModel into a PNG (AA level, RGB truecolor) file.
+ * Zero dependencies: only uses node:zlib for compression.
+ * @param {QRCodeModel} model - Generated model (make() must have been called).
+ * @param {QrImageOptions} options - Scale, colors and quiet zone.
+ */
+export const encodeQrPng = (model: QRCodeModel, options: QrImageOptions = {}): Buffer => {
+	const scale = Math.max(1, Math.floor(options.scale ?? 1))
+	const quietZone = Math.max(0, Math.floor(options.quietZone ?? 4))
+	const rgb = renderRgbBuffer(model, {
+		scale,
+		quietZone,
+		colorDark: options.colorDark ?? '#000000',
+		colorLight: options.colorLight ?? '#ffffff',
+	})
+
+	const moduleCount = model.getModuleCount()
+	const size = (moduleCount + quietZone * 2) * scale
+	return encodePngFromRgb(size, rgb)
 }

@@ -10,8 +10,9 @@ export default defineConfig({
 	platform: 'node',
 	tsconfig: './tsconfig.json',
 	deps: {
-		// commander y @qr-render/core quedan externos (dependencias del paquete).
-		neverBundle: ['commander', '@qr-render/core'],
+		// Externos como dependencias del paquete: commander y el core, más el
+		// stack de Ink (react/ink-picture) que se resuelve en runtime.
+		neverBundle: ['commander', '@qr-render/core', 'ink', 'ink-picture', 'react'],
 	},
 	outExtensions() {
 		// dist/cli.js exacto: es lo que apunta el campo `bin` del paquete.
