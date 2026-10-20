@@ -1,10 +1,15 @@
 name: Release → npm
 
-# Publicación a través de los commits: al fusionar a `main`, cada paquete se
-# publica sólo si su `version` cambió (flujo: PR con `chore(release): bump a
-# X.Y.Z` en packages/*/package.json → merge a main → publish).
-# Requiere el secret NODE_AUTH_TOKEN (token de npm con permiso publish);
-# sin el secret el job se salta la publicación con un notice.
+# Publicación en npm con Changesets (mismo flujo que EngineWeb / useful-libs):
+#   1. Cada PROSPON incluye un changeset generado con `pnpm changeset`
+#      (selección de paquete + major/minor/patch) comiteado junto al cambio.
+#   2. En cada push a `main`, `changesets/action` acumula los changesets
+#      pendientes en un PR "chore: version packages" que bumppea versiones y
+#      genera los CHANGELOG.md.
+#   3. Al fusionar ese PR, se ejecuta `pnpm release` (changeset publish) y los
+#      paquetes nuevos/cambiados salen a npm.
+# Requiere el secret NPM_TOKEN (token de npm con permiso publish); sin el
+# secret el job se salta la publicación con un notice.
 
 on:
   push:
@@ -12,20 +17,23 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
+  pull-requests: write
+  id-token: write
 
 concurrency:
   group: release
   cancel-in-progress: false
 
 jobs:
-  publish:
-    name: Publicar paquetes cambiados
+  release:
+    name: Version + publish con changesets
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - uses: pnpm/action-setup@v4
+      # Lee la versión de pnpm del campo packageManager (pnpm@12.10.1).
+      - uses: pnpm/action-setup@v6
 
       - uses: actions/setup-node@v4
         with:
@@ -39,20 +47,30 @@ jobs:
       - name: Build de los paquetes
         run: pnpm build
 
+      - name: Tests
+        run: pnpm test:run
+
       - name: ¿Token de npm disponible?
         id: token
         run: |
-          if [ -n "${NODE_AUTH_TOKEN:-}" ]; then
+          if [ -n "${NPM_TOKEN:-}" ]; then
             echo "available=true" >> "$GITHUB_OUTPUT"
           else
             echo "available=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::El secret NODE_AUTH_TOKEN no está configurado — se omite la publicación."
+            echo "::notice::El secret NPM_TOKEN no está configurado — se omite la publicación."
           fi
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Publicar @qr-render/core · web · cli (solo versiones nuevas)
+      - name: Version o publish con changesets
         if: steps.token.outputs.available == 'true'
-        run: node .github/scripts/publish-changed.mjs
+        uses: changesets/action@v2
+        with:
+          version-script: pnpm version-packages
+          publish-script: pnpm release
+          commit-message: 'chore: version packages'
+          pr-title: 'chore: version packages'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

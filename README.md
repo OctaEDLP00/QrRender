@@ -90,9 +90,13 @@ pnpm build && node packages/cli/dist/cli.js "Hola mundo"
 - **DevDependencies hoisted a la raíz**: oxfmt/oxlint/vitest/tsup/typescript no se repiten por
   paquete; cada paquete declara solo sus dependencias runtime (`commander`, `@qr-render/core`). pnpm
   expone el `node_modules/.bin` de la raíz a los scripts de los workspaces.
-- CI única en `.github/workflows/ci.yml` (lint, fmt, test, build por paquete).
-- Cada paquete mantiene sus scripts de release (`release.bash` / `release.ps1`) para publicar en npm
-  con `pnpm publish`.
+- CI en `.github/workflows/ci.yml` (lint, fmt, test, build, type-check por paquete + docs).
+- **Release con Changesets**: `pnpm changeset` genera el bump → `.github/workflows/release.yml`
+  (`changesets/action`) acumula los changesets en un PR "chore: version packages" y, al fusionarlo,
+  publica `@qr-render/*` en npm (requiere el secret `NPM_TOKEN`).
+- Divulgación de commits: Conventional Commits con `husky` (hooks `pre-commit` y `commit-msg`) +
+  `commitlint`; los PRs se validan además con `.github/workflows/commitlint.yml`, y Dependabot
+  renueva dependencias de npm y GitHub Actions semanalmente.
 
 ## Roadmap
 

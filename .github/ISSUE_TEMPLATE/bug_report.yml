@@ -1,0 +1,59 @@
+name: Reporte de bug
+description: Reporta un problema reproducible en un paquete o en la docs.
+title: 'fix: '
+labels: [bug]
+body:
+  - type: dropdown
+    id: package
+    attributes:
+      label: Paquete
+      description: ¿Dónde vive el bug?
+      options:
+        - '@qr-render/core'
+        - '@qr-render/web'
+        - '@qr-render/cli'
+        - docs
+        - tooling / CI
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Versión
+      description: Versión del paquete (o SHA de commit si aún no hay release).
+      placeholder: p. ej. 0.1.0
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Descripción
+      description: ¿Qué pasó y qué esperabas en su lugar?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproducción
+      description: Pasos mínimos o snippet de código para reproducir el problema.
+      placeholder: |
+        ```ts
+        // snippet mínimo aquí
+        ```
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Entorno
+      description: Versiones de Node.js, pnpm, OS y navegador (si aplica).
+      placeholder: |
+        Node: v22.x
+        pnpm: 12.x
+        OS: ...
+        Navegador: ...
+  - type: textarea
+    id: context
+    attributes:
+      label: Contexto adicional
+      description: Logs, capturas, enlaces o cualquier otra cosa que ayude.

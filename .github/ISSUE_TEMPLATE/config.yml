@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Documentación
+    url: https://octaedlp00.github.io/QrRender/
+    about: Leé la guía y la referencia de API de cada paquete antes de abrir un issue.
+  - name: Playground
+    url: https://octaedlp00.github.io/QrRender/#playground
+    about: Reproducí tu caso en el playground (Texto/URL, WiFi y export PNG/SVG).

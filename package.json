@@ -21,10 +21,14 @@
 		"docs": "node tools/build-docs.mjs && node tools/serve-docs.mjs",
 		"docs:build": "node tools/build-docs.mjs",
 		"docs:type-check": "tsc -p docs/tsconfig.json",
-    "commitlint": "commitlint",
+		"commitlint": "commitlint",
+		"changeset": "changeset",
+		"version-packages": "changeset version",
+		"release": "changeset publish",
 		"prepare": "husky"
 	},
 	"devDependencies": {
+		"@changesets/cli": "3.0.3",
 		"@commitlint/cli": "^21.2.4",
 		"@commitlint/config-conventional": "^21.2.4",
 		"@types/node": "25.0.10",

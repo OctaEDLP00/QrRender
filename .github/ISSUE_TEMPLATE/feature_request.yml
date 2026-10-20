@@ -1,0 +1,46 @@
+name: Solicitud de feature
+description: Propón una feature nueva o una API pública para un paquete @qr-render.
+title: 'feat: '
+labels: [enhancement]
+body:
+  - type: dropdown
+    id: package
+    attributes:
+      label: Paquete
+      description: ¿Qué paquete debería recibir esta feature?
+      options:
+        - '@qr-render/core'
+        - '@qr-render/web'
+        - '@qr-render/cli'
+        - docs
+        - paquete nuevo
+    validations:
+      required: true
+  - type: textarea
+    id: summary
+    attributes:
+      label: Resumen
+      description: ¿Qué habría que añadir, en una o dos frases?
+    validations:
+      required: true
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Motivación
+      description: ¿Qué caso de uso lo necesita? ¿Por qué las APIs actuales se quedan cortas?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: API propuesta
+      description: Boceto de la API que tenés en mente (signatures, opciones, uso de ejemplo).
+      placeholder: |
+        ```ts
+        // uso propuesto aquí
+        ```
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternativas consideradas
+      description: Otros diseños, workarounds o librerías relacionadas.
