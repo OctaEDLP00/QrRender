@@ -18,7 +18,7 @@
 
 	/** Estado compartido. Cada opción visual se aplica en el constructor del renderer. */
 	const state = {
-		text: 'https://github.com/OctaEDLP00/qr-code-monorepo',
+		text: 'https://github.com/OctaEDLP00/QrRender',
 		width: 256,
 		height: 256,
 		colorDark: '#111827',
